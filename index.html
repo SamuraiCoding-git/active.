@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.png" type="image/png">
+  <title>актив.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            graphite: "#EEE7DA",
+            slate: "#9A978F",
+            accent: "#F08A32",
+            cloud: "#060A0F",
+            line: "#23303C",
+            panel: "#0C1219",
+            steel: "#16202B",
+            mist: "#D3CDC1",
+            screen: "#6EA6B8",
+            chrome: "#C5B9A4",
+          },
+          fontFamily: {
+            sans: ["Manrope", "system-ui", "sans-serif"],
+            display: ["Space Grotesk", "system-ui", "sans-serif"],
+            mono: ["JetBrains Mono", "SFMono-Regular", "ui-monospace", "monospace"],
+          },
+          letterSpacing: {
+            tighter2: "-0.04em",
+          },
+          boxShadow: {
+            speed: "0 18px 40px rgba(217, 139, 58, 0.18)",
+            panel: "0 22px 90px rgba(0, 0, 0, 0.45)",
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 50% 0%, rgba(110, 166, 184, 0.12), rgba(110, 166, 184, 0) 24%),
+        radial-gradient(circle at top left, rgba(45, 87, 102, 0.2), rgba(45, 87, 102, 0) 24%),
+        radial-gradient(circle at top right, rgba(240, 138, 50, 0.16), rgba(240, 138, 50, 0) 20%),
+        linear-gradient(180deg, #030508 0%, #081019 36%, #0d141c 100%);
+      background-attachment: fixed;
+    }
+
+    .fade-section {
+      opacity: 0;
+      transform: translateY(18px);
+      will-change: opacity, transform;
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+
+    .fade-section.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(110, 166, 184, 0.12);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+        linear-gradient(135deg, rgba(11, 20, 28, 0.96), rgba(8, 13, 19, 0.95));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.015),
+        0 22px 90px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(240, 138, 50, 0.8), rgba(110, 166, 184, 0.3), rgba(240, 138, 50, 0));
+      pointer-events: none;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(110, 166, 184, 0.035) 0, transparent 18%, transparent 82%, rgba(240, 138, 50, 0.04) 100%),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 4px);
+      opacity: 0.55;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .noise::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.06;
+      background-image:
+        linear-gradient(rgba(110, 166, 184, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(110, 166, 184, 0.08) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.65), transparent 92%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #8c9ba1;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(240, 138, 50, 1), rgba(240, 138, 50, 0.15));
+    }
+
+    .hero-grid {
+      background:
+        radial-gradient(circle at center top, rgba(110, 166, 184, 0.14), transparent 30%),
+        linear-gradient(180deg, rgba(18, 31, 42, 0.7), rgba(255, 255, 255, 0) 42%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+    }
+
+    .metric-card {
+      border: 1px solid rgba(110, 166, 184, 0.15);
+      background:
+        linear-gradient(180deg, rgba(110, 166, 184, 0.1), rgba(255, 255, 255, 0.02)),
+        rgba(7, 12, 18, 0.94);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.03),
+        inset 0 0 18px rgba(110, 166, 184, 0.03);
+    }
+
+    .metric-card strong {
+      display: block;
+      margin-top: 0.55rem;
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      font-size: 1.15rem;
+      line-height: 1.2;
+      color: #f0ebe1;
+    }
+
+    .pitlane-easter {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 30;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      pointer-events: none;
+    }
+
+    .pitlane-card {
+      width: min(300px, calc(100vw - 36px));
+      padding: 1rem;
+      border: 1px solid rgba(110, 166, 184, 0.14);
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)),
+        rgba(8, 12, 17, 0.97);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      pointer-events: none;
+    }
+
+    .pitlane-thumb {
+      overflow: hidden;
+      border: 1px solid rgba(110, 166, 184, 0.24);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at top, rgba(110, 166, 184, 0.22), transparent 55%),
+        linear-gradient(180deg, rgba(17, 27, 36, 0.98), rgba(7, 10, 14, 0.98));
+    }
+
+    .syndicate-grid {
+      position: relative;
+      min-height: 172px;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+    }
+
+    .syndicate-grid::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(transparent 0%, rgba(240, 138, 50, 0.08) 100%);
+      pointer-events: none;
+    }
+
+    .syndicate-panel {
+      border: 1px solid rgba(110, 166, 184, 0.2);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+        rgba(8, 13, 18, 0.9);
+      padding: 0.45rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 64px;
+    }
+
+    .syndicate-panel span {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #84a4b1;
+    }
+
+    .syndicate-panel strong {
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      font-size: 0.95rem;
+      color: #f08a32;
+      line-height: 1;
+    }
+
+    .pitlane-label {
+      margin-top: 0.8rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #8c9ba1;
+    }
+
+    .pitlane-title {
+      margin-top: 0.45rem;
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #f7efe2;
+    }
+
+    .pitlane-copy {
+      margin-top: 0.35rem;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: #8c9ba1;
+    }
+
+    .pitlane-trigger {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.8rem 1rem;
+      border: 1px solid rgba(110, 166, 184, 0.18);
+      border-radius: 999px;
+      background: rgba(8, 12, 17, 0.96);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #dce7ea;
+      text-decoration: none;
+      pointer-events: auto;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .pitlane-trigger:hover {
+      transform: translateY(-2px);
+      border-color: rgba(240, 138, 50, 0.34);
+      background: rgba(10, 15, 21, 0.99);
+    }
+
+    .pitlane-easter:hover .pitlane-card,
+    .pitlane-easter:focus-within .pitlane-card {
+      opacity: 1;
+      transform: translateY(-62px) scale(1);
+      pointer-events: auto;
+    }
+
+    @media (max-width: 639px) {
+      .pitlane-trigger span:last-child {
+        display: none;
+      }
+    }
+
+    .card-surface {
+      transition: transform 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+    }
+
+    .card-surface:hover {
+      transform: translateY(-4px);
+      border-color: rgba(240, 138, 50, 0.28);
+      background:
+        linear-gradient(180deg, rgba(110, 166, 184, 0.08), rgba(255, 255, 255, 0.015)),
+        rgba(9, 14, 20, 0.99);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 18px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    .cta-button {
+      background: linear-gradient(135deg, #f08a32, #b8651e);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 18px 44px rgba(240, 138, 50, 0.24);
+    }
+
+    .cta-button:hover {
+      background: linear-gradient(135deg, #fb9742, #cb7328);
+    }
+
+    .section-divider {
+      border-top: 1px solid rgba(110, 166, 184, 0.12);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .fade-section {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    h1 {
+      text-align: center;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    h2 {
+      text-align: center;
+      text-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    h1 span,
+    h2 span,
+    .font-mono.text-accent,
+    .text-accent {
+      text-shadow: 0 0 18px rgba(240, 138, 50, 0.18);
+    }
+
+    .bg-cloud {
+      background:
+        linear-gradient(180deg, rgba(14, 24, 33, 0.95), rgba(7, 11, 16, 0.98)) !important;
+      box-shadow:
+        inset 0 0 0 1px rgba(110, 166, 184, 0.08),
+        inset 0 12px 28px rgba(110, 166, 184, 0.03);
+    }
+
+    .aspect-video {
+      position: relative;
+      box-shadow:
+        inset 0 0 0 1px rgba(110, 166, 184, 0.14),
+        0 24px 50px rgba(0, 0, 0, 0.34);
+    }
+
+    .aspect-video::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(110, 166, 184, 0.08), transparent 22%),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .aspect-video::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 1px solid rgba(240, 138, 50, 0.16);
+      border-radius: 18px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .aspect-video iframe {
+      position: relative;
+      z-index: 0;
+      filter: saturate(0.86) contrast(1.02) brightness(0.9);
+    }
+
+    .font-mono,
+    .eyebrow,
+    .pitlane-label,
+    .pitlane-trigger {
+      letter-spacing: 0.18em;
+    }
+  </style>
+</head>
+<body class="font-sans text-graphite antialiased">
+  <div class="mx-auto max-w-[1440px] px-4 py-4 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
+    <main>
+      <section class="panel noise hero-grid fade-section rounded-[34px] px-5 py-10 sm:px-8 sm:py-12 lg:px-12 lg:py-14">
+        <div class="space-y-8 sm:space-y-9">
+          <div class="space-y-5 sm:space-y-6">
+            <div class="eyebrow">Комьюнити для выхода на зарубежный рынок</div>
+            <h1 class="font-display max-w-5xl text-5xl font-bold leading-[0.94] tracking-tighter2 sm:text-7xl lg:text-[5.5rem]">
+              Добро пожаловать в <span class="text-accent">актив.</span>
+            </h1>
+            <p class="max-w-2xl text-lg leading-8 text-slate text-center sm:text-xl">
+              Комьюнити единомышленников, в котором ты поймешь, что нужно делать, чтобы выйти на
+              <span class="font-mono text-graphite text-accent">$10,000</span>
+              с зарубежного рынка.
+            </p>
+          </div>
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <a href="https://app.lava.top/products/b37c3485-0cd2-459f-a069-209f7940ba15" class="cta-button inline-flex items-center gap-3 rounded-full px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition duration-300">
+              Присоединиться за $15 навсегда
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"></path>
+                <path d="m13 5 7 7-7 7"></path>
+              </svg>
+            </a>
+            <div class="font-mono text-center text-xs uppercase tracking-[0.18em] text-slate">Навсегда. Один платёж. Без подписки.</div>
+          </div>
+          <div class="grid gap-4 pt-2 sm:grid-cols-3 lg:max-w-5xl">
+            <div class="metric-card rounded-[24px] px-5 py-5">
+              <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-slate">Фокус</span>
+              <strong>$10,000/мес на зарубежке</strong>
+            </div>
+            <div class="metric-card rounded-[24px] px-5 py-5">
+              <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-slate">Формат</span>
+              <strong>Материалы, разборы и среда роста</strong>
+            </div>
+            <div class="metric-card rounded-[24px] px-5 py-5">
+              <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-slate">Старт</span>
+              <strong>$15 навсегда</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel fade-section mt-4 rounded-[34px] px-5 py-10 sm:mt-5 sm:px-8 sm:py-12 lg:px-12 lg:py-14">
+        <div class="mb-8 flex flex-col gap-5 sm:mb-10 lg:flex-row lg:items-end lg:justify-between">
+          <div class="space-y-4">
+            <div class="eyebrow">Быстрый обзор</div>
+            <h2 class="font-display text-4xl font-bold leading-tight tracking-tighter2 sm:text-6xl">
+              Посмотри видео о <span class="text-accent">актив.</span>
+            </h2>
+          </div>
+        </div>
+        <div class="space-y-6 sm:space-y-8">
+          <div class="aspect-video overflow-hidden rounded-[28px] border border-line bg-cloud shadow-panel">
+            <iframe
+              class="h-full w-full"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0"
+              title="Видео о актив."
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="section-divider flex flex-col gap-5 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <a href="https://app.lava.top/products/b37c3485-0cd2-459f-a069-209f7940ba15" class="cta-button inline-flex items-center gap-3 rounded-full px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition duration-300">
+              Присоединиться за $15 навсегда
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"></path>
+                <path d="m13 5 7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel fade-section mt-4 rounded-[34px] px-5 py-10 sm:mt-5 sm:px-8 sm:py-12 lg:px-12 lg:py-14">
+        <div class="mb-10 max-w-4xl space-y-4 sm:mb-12">
+          <div class="eyebrow">Что внутри</div>
+          <h2 class="font-display text-4xl font-bold tracking-tighter2 sm:text-6xl">Что ты <span class="text-accent">найдёшь</span> внутри</h2>
+          <p class="text-lg leading-8 text-center text-slate">
+            Полный набор материалов и знаний, чтобы ты понял как выйти на
+            <span class="font-mono text-graphite text-accent">$10,000/мес</span>
+            на зарубежном рынке.
+          </p>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <article class="card-surface flex h-full flex-col gap-8 rounded-[28px] border border-line bg-cloud p-8">
+            <i data-lucide="clapperboard" class="h-8 w-8 text-accent"></i>
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold tracking-tighter2">Консультация за $1500</h3>
+              <p class="leading-7 text-slate">Запись моей консультации о том, как выстроить фул систему инфобизнеса на 15,000$/мес.</p>
+            </div>
+          </article>
+
+          <article class="card-surface flex h-full flex-col gap-8 rounded-[28px] border border-line bg-cloud p-8">
+            <i data-lucide="users" class="h-8 w-8 text-accent"></i>
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold tracking-tighter2">Коммьюнити заряженных предпринимателей</h3>
+              <p class="leading-7 text-slate">Общение с единомышленниками, а не незнакомцами из интернета.</p>
+            </div>
+          </article>
+
+          <article class="card-surface flex h-full flex-col gap-8 rounded-[28px] border border-line bg-cloud p-8">
+            <i data-lucide="target" class="h-8 w-8 text-accent"></i>
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold tracking-tighter2">Стратегия на жизнь</h3>
+              <p class="leading-7 text-slate">Гайд, который навсегда изменит твою жизнь и поможет составить глобальную стратегию и на ближайшие 3 года.</p>
+            </div>
+          </article>
+
+          <article class="card-surface flex h-full flex-col gap-8 rounded-[28px] border border-line bg-cloud p-8">
+            <i data-lucide="chart-column" class="h-8 w-8 text-accent"></i>
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold tracking-tighter2">Разборы воронок</h3>
+              <p class="leading-7 text-slate">Анализ воронок на зарубежном рынке и как строить такие же.</p>
+            </div>
+          </article>
+
+          <article class="card-surface flex h-full flex-col gap-8 rounded-[28px] border border-line bg-cloud p-8">
+            <i data-lucide="book-open" class="h-8 w-8 text-accent"></i>
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold tracking-tighter2">Материалы по продуктам</h3>
+              <p class="leading-7 text-slate">Полные гайды по созданию продуктов и офферов.</p>
+            </div>
+          </article>
+
+          <article class="card-surface flex h-full flex-col gap-8 rounded-[28px] border border-line bg-cloud p-8">
+            <div class="inline-flex h-12 w-12 items-center justify-center">
+              <svg viewBox="0 0 24 24" class="h-8 w-8 text-accent" fill="currentColor" aria-hidden="true">
+                <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.7V8.3l6.4 3.7-6.4 3.7Z"/>
+              </svg>
+            </div>
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold tracking-tighter2">YouTube гайды</h3>
+              <p class="leading-7 text-slate">Материалы по снятию видео на YouTube, чтобы лутать клиентов на свои услуги и подписчиков с нуля.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel fade-section mt-4 rounded-[34px] px-5 py-10 sm:mt-5 sm:px-8 sm:py-12 lg:px-12 lg:py-14">
+        <div class="mb-10 max-w-4xl space-y-4 sm:mb-12">
+          <div class="eyebrow">Почему это работает</div>
+          <h2 class="font-display text-4xl font-bold tracking-tighter2 sm:text-6xl">
+            Почему <span class="text-accent">актив.</span>  работает
+          </h2>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-2">
+          <div class="card-surface flex items-start gap-4 rounded-[26px] border border-line bg-cloud p-6 sm:gap-6">
+            <i data-lucide="move-right" class="mt-1 h-5 w-5 shrink-0 text-accent"></i>
+            <p class="max-w-4xl text-lg leading-8 text-graphite">
+              Цель <span class="font-mono text-accent">актив.</span> дать тебе коммьюнити из заряженных единомышленников-предпринимателей, которые покоряют зарубежный рынок.
+            </p>
+          </div>
+          <div class="card-surface flex items-start gap-4 rounded-[26px] border border-line bg-cloud p-6 sm:gap-6">
+            <i data-lucide="move-right" class="mt-1 h-5 w-5 shrink-0 text-accent"></i>
+            <p class="max-w-4xl text-lg leading-8 text-graphite">
+              После вступления ты поймешь, что нужно делать, чтобы выйти на
+              <span class="font-mono text-accent">$10,000</span>
+              с зарубежного рынка.
+            </p>
+          </div>
+          <div class="card-surface flex items-start gap-4 rounded-[26px] border border-line bg-cloud p-6 sm:gap-6">
+            <i data-lucide="move-right" class="mt-1 h-5 w-5 shrink-0 text-accent"></i>
+            <p class="max-w-4xl text-lg leading-8 text-graphite">Материалы постоянно дополняются и обновляются.</p>
+          </div>
+          <div class="card-surface flex items-start gap-4 rounded-[26px] border border-line bg-cloud p-6 sm:gap-6">
+            <i data-lucide="move-right" class="mt-1 h-5 w-5 shrink-0 text-accent"></i>
+            <p class="max-w-4xl text-lg leading-8 text-graphite">
+              Ты будешь реализовывать стратегию, потому что хочешь, а не потому что
+              <span class="font-mono text-accent">надо</span>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="join" class="panel noise fade-section mt-4 rounded-[34px] px-5 py-10 sm:mt-5 sm:px-8 sm:py-12 lg:px-12 lg:py-14">
+        <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+          <div class="space-y-5 sm:space-y-6">
+            <div class="eyebrow">Последний шаг</div>
+            <h2 class="font-display max-w-4xl text-4xl font-bold tracking-tighter2 sm:text-6xl">Готов <span class="text-accent">начать</span> свой путь?</h2>
+            <p class="max-w-2xl text-lg leading-8 text-slate text-center">
+              Если ты реально готов выйти на
+              <span class="font-mono text-graphite text-accent">$10,000/мес</span>
+              на американском рынке, то ждем тебя в <span class="text-accent font-bold">актив.</span> Здесь начнется твоя дорога.
+            </p>
+          </div>
+          <div class="space-y-5 rounded-[28px] border border-line bg-cloud/70 p-6 sm:space-y-6 sm:p-8 lg:ml-auto lg:max-w-md">
+            <a href="https://app.lava.top/products/b37c3485-0cd2-459f-a069-209f7940ba15" class="cta-button inline-flex w-full items-center justify-center gap-3 rounded-full px-8 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition duration-300">
+              Присоединиться за $15 навсегда
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"></path>
+                <path d="m13 5 7 7-7 7"></path>
+              </svg>
+            </a>
+            <p class="text-sm leading-6 text-slate text-center">Один платёж, бессрочный доступ и новые материалы по мере обновления базы.</p>
+            <p class="font-mono text-xs uppercase tracking-[0.18em] text-slate text-center">
+              Платеж обрабатывается безопасно через <span class="text-accent">Lava</span>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="pitlane-easter" aria-label="Пасхалка Синдикат">
+    <div class="pitlane-card">
+      <div class="pitlane-thumb">
+        <div class="syndicate-grid" aria-hidden="true">
+          <div class="syndicate-panel"><span>Desk 01</span><strong>+18%</strong></div>
+          <div class="syndicate-panel"><span>Flow</span><strong>$10k</strong></div>
+          <div class="syndicate-panel"><span>Zone</span><strong>US</strong></div>
+          <div class="syndicate-panel"><span>Entry</span><strong>LIVE</strong></div>
+          <div class="syndicate-panel"><span>Deal</span><strong>24/7</strong></div>
+          <div class="syndicate-panel"><span>Rank</span><strong>ELITE</strong></div>
+        </div>
+      </div>
+      <div class="pitlane-label">Досье синдиката</div>
+    </div>
+    <a href="https://app.lava.top/products/b37c3485-0cd2-459f-a069-209f7940ba15" class="pitlane-trigger">
+      <span>💸</span>
+      <span>Syndicate access</span>
+    </a>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons({
+      attrs: {
+        width: 28,
+        height: 28,
+        stroke: "currentColor",
+        "stroke-width": 1.5,
+      },
+    });
+
+    const fadeSections = document.querySelectorAll(".fade-section");
+
+    const revealSection = (section) => {
+      section.classList.add("is-visible");
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            revealSection(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: "0px 0px -10% 0px",
+      }
+    );
+
+    fadeSections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      const isInitiallyVisible = rect.top < window.innerHeight * 0.92;
+
+      if (isInitiallyVisible) {
+        revealSection(section);
+        return;
+      }
+      observer.observe(section);
+    });
+  </script>
+</body>
+</html>
